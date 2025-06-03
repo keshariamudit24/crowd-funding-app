@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from 'ethers';
+import { toast } from 'react-toastify';
 
 const CONTRACT_ADDRESS = "0xD8BD6d7EEEdb0023255f060b3794B92180Bb9289";
 const CONTRACT_ABI = [
@@ -32,7 +33,7 @@ export default function CryptoPayments() {
 
     // Fetch ETH to USD conversion (mocked here for simplicity)
     useEffect(() => {
-        const ethToUsd = 3800; // replace with real API if needed
+        const ethToUsd = 2636.49; // replace with real API if needed
         const usd = (parseFloat(ethAmount) * ethToUsd).toFixed(2);
         setUsdValue(usd);
     }, [ethAmount]);
@@ -40,13 +41,29 @@ export default function CryptoPayments() {
     const handleDonate = async () => {
         setTxStatus("");
         if (!window.ethereum) {
-            alert("Please install MetaMask!");
+            toast.error("Please install MetaMask!");
             return;
         }
+
+        // Validate donation amount
+        const amount = parseFloat(ethAmount);
+        if (isNaN(amount) || amount <= 0) {
+            toast.warning("Please enter an amount greater than 0 ETH", {
+                position: "top-right",
+                autoClose: 5000
+            });
+            return;
+        }
+
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+            toast.info("Processing donation...", {
+                position: "top-right",
+                autoClose: 5000
+            });
 
             const tx = await contract.fund({
                 value: ethers.utils.parseEther(ethAmount)
@@ -54,10 +71,18 @@ export default function CryptoPayments() {
 
             setTxStatus("Transaction submitted. Waiting for confirmation...");
             await tx.wait();
+            toast.success("Thank you for your donation!", {
+                position: "top-right",
+                autoClose: 5000
+            });
             setTxStatus("Thank you for your donation! Transaction confirmed.");
         } catch (error) {
             console.error(error);
             setTxStatus("Transaction failed or rejected.");
+            toast.error("Transaction failed or rejected", {
+                position: "top-right",
+                autoClose: 5000
+            });
         }
     };
 
@@ -90,7 +115,7 @@ export default function CryptoPayments() {
 
     return (
         <>
-            <div className="pt-20 pb-20">
+            <div className="pt-20">
                 <div className="text-center max-w-2xl mx-auto">
                     <div>
                         <h1 className="font-bold text-4xl mb-4">

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { FaEthereum, FaArrowDown } from 'react-icons/fa';
 import { ethers } from 'ethers';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function TotalFunds(){
     const [balance, setBalance] = useState("0.00");
@@ -8,6 +10,7 @@ export default function TotalFunds(){
     const [isOwner, setIsOwner] = useState(false);
     const [walletConnected, setWalletConnected] = useState(false);
     const [account, setAccount] = useState('');
+    const [txStatus, setTxStatus] = useState("");
     
     const contractAddress = "0xD8BD6d7EEEdb0023255f060b3794B92180Bb9289";
     const contractABI = [
@@ -53,7 +56,7 @@ export default function TotalFunds(){
                     const balanceEth = ethers.utils.formatEther(balanceWei);
                     setBalance(balanceEth);
 
-                    const ethPrice = 2000;
+                    const ethPrice = 2636.49;
                     const usdValue = (parseFloat(balanceEth) * ethPrice).toFixed(2);
                     setUsdBalance(usdValue);
                 }
@@ -122,26 +125,62 @@ export default function TotalFunds(){
     const handleWithdraw = async () => {
         setTxStatus("");
         if (!window.ethereum) {
-            alert("Please install MetaMask!");
+            toast.error("Please install MetaMask!");
             return;
         }
+
+        // Add balance check
+        if (parseFloat(balance) <= 0) {
+            toast.warning("No funds available to withdraw!", {
+                position: "top-right",
+                autoClose: 5000
+            });
+            return;
+        }
+
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
+            toast.info("Initiating withdrawal...", {
+                position: "top-right",
+                autoClose: 5000
+            });
+
             const tx = await contract.withdraw();
             setTxStatus("Withdraw transaction submitted. Waiting for confirmation...");
+            
             await tx.wait();
             setTxStatus("Funds withdrawn successfully!");
+            toast.success("Funds withdrawn successfully!", {
+                position: "top-right",
+                autoClose: 5000
+            });
         } catch (error) {
             console.error(error);
             setTxStatus("Withdraw transaction failed or rejected.");
+            toast.error("Transaction failed or rejected", {
+                position: "top-right",
+                autoClose: 5000
+            });
         }
     };
 
     return (
         <>
+            <ToastContainer 
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+            />
             <div className="pt-36">
                 <div className="text-center max-w-2xl mx-auto">
                     <div>
