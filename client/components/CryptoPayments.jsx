@@ -115,23 +115,9 @@ export default function CryptoPayments() {
 
     return (
         <>
-            <div className="pt-20">
-                <div className="text-center max-w-2xl mx-auto">
-                    <div>
-                        <h1 className="font-bold text-4xl mb-4">
-                            Donate with Cryptocurrency
-                        </h1>
-                    </div>
-                    <div>
-                        <p className="text-lg text-gray-600">
-                            Your cryptocurrency donation directly funds our mission. Connect your wallet and make a difference today.
-                        </p>
-                    </div>
-                </div>
-                <div className="flex flex-col items-center gap-4 pt-16">
-                    {walletConnected ? (
-                        <div className="w-full max-w-lg">
-                            <div className="bg-white rounded-2xl shadow-lg p-8">
+            {walletConnected ? (
+                <div className="w-full max-w-lg">
+                    <div className="bg-white rounded-2xl shadow-lg p-8">
                                 {/* Wallet Connection Status */}
                                 <div className="flex items-center mb-8">
                                     <div className="h-8 w-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center mr-3">
@@ -186,18 +172,16 @@ export default function CryptoPayments() {
                                 <p className="text-gray-500 text-center mt-6">
                                     Your donation will be processed securely. Thank you for your generosity!
                                 </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <button
-                            onClick={connectWallet}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl text-lg transition-colors duration-300"
-                        >
-                            Connect Wallet
-                        </button>
-                    )}
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <button
+                    onClick={connectWallet}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl text-lg transition-colors duration-300"
+                >
+                    Connect Wallet
+                </button>
+            )}
         </>
     );
 }
